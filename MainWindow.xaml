@@ -1,0 +1,287 @@
+﻿<Window x:Class="GuitarTuner.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GuitarTuner"
+        mc:Ignorable="d"
+        Title="Guitar Tuner" Height="850" Width="1120" Background="#2A3F3F">
+
+    <Border Background="DarkSlateGray" Width="1100" Height="800" BorderBrush="#2A3F3F" BorderThickness="5" CornerRadius="60" Padding="10" Margin="0,2">
+        <Grid x:Name="main_grid" Background="DarkSlateGray" Width="1000" Height="773">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.7*"/>
+                <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="3.5*"/>
+                <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="20,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" VerticalAlignment="Top" Height="60">
+                    <TextBlock Foreground="AntiqueWhite" Text="E2" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                    <TextBlock Foreground="AntiqueWhite" Text="6 струна" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                </Grid>
+                <Grid Grid.Column="1" VerticalAlignment="Top" Height="60">
+                    <TextBlock Foreground="AntiqueWhite" Text="A2" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                    <TextBlock Foreground="AntiqueWhite" Text="5 струна" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                </Grid>
+                <Grid Grid.Column="2" VerticalAlignment="Top" Height="60">
+                    <TextBlock Foreground="AntiqueWhite" Text="D3" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                    <TextBlock Foreground="AntiqueWhite" Text="4 струна" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                </Grid>
+                <Grid Grid.Column="3" VerticalAlignment="Top" Height="60">
+                    <TextBlock Foreground="AntiqueWhite" Text="G3" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                    <TextBlock Foreground="AntiqueWhite" Text="3 струна" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                </Grid>
+                <Grid Grid.Column="4" VerticalAlignment="Top" Height="60">
+                    <TextBlock Foreground="AntiqueWhite" Text="B3" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                    <TextBlock Foreground="AntiqueWhite" Text="2 струна" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                </Grid>
+                <Grid Grid.Column="5" VerticalAlignment="Top" Height="60">
+                    <TextBlock Foreground="AntiqueWhite" Text="E4" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                    <TextBlock Foreground="AntiqueWhite" Text="1 струна" FontFamily="Bahnschrift" FontWeight="Light" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                </Grid>
+            </Grid>
+
+            <Border Grid.Row="1" Height="2" Background="#2A3F3F" VerticalAlignment="Bottom">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="1" Opacity="0.3"/>
+                </Border.Effect>
+            </Border>
+
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.75*"/>
+                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="0.75*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           x:Name="note_text"
+                           Text="A4"
+                           Foreground="Wheat"
+                           FontFamily="Bahnschrift"
+                           FontSize="175"
+                           FontWeight="Bold"
+                           VerticalAlignment="Bottom"
+                           HorizontalAlignment="Center"/>
+
+                <TextBlock Grid.Row="1"
+                           x:Name="note_hz_text"
+                           Text="(440 Гц)"
+                           Foreground="AntiqueWhite"
+                           FontFamily="Bahnschrift"
+                           FontSize="30"
+                           FontWeight="Light"
+                           VerticalAlignment="Top"
+                           HorizontalAlignment="Center"/>
+
+                <Grid Grid.Row="2" Margin="0,10" HorizontalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="800"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Height="8"
+                            CornerRadius="4"
+                            Background="AliceBlue"
+                            VerticalAlignment="Center"
+                            Margin="50,0"/>
+
+                    <Ellipse Width="70"
+                             Height="70"
+                             Stroke="AntiqueWhite"
+                             StrokeThickness="5"
+                             StrokeDashArray="1 1"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
+                    </Ellipse>
+
+                    <Ellipse x:Name="ball"
+                             Width="50"
+                             Height="50"
+                             Fill="CadetBlue"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
+                        <Ellipse.Effect>
+                            <DropShadowEffect Color="Black"
+                                              BlurRadius="8"
+                                              ShadowDepth="1"
+                                              Opacity="1"/>
+                        </Ellipse.Effect>
+                    </Ellipse>
+                </Grid>
+            </Grid>
+
+            <Border Grid.Row="3" Height="2" Background="#2A3F3F" VerticalAlignment="Bottom">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="1" Opacity="0.3"/>
+                </Border.Effect>
+            </Border>
+
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           x:Name="current_hz_text"
+                           Text="Текущая частота: 440 Гц"
+                           FontSize="24"
+                           Foreground="AntiqueWhite"
+                           FontFamily="Bahnschrift"
+                           FontWeight="Light"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"/>
+
+                <Button Grid.Column="1"
+                        x:Name="start_stop_button"
+                        Click="StartStopClick"
+                        Content="Начать"
+                        Style="{StaticResource RoundedButton}"
+                        Background="#32cd32"
+                        FontFamily="Bahnschrift"
+                        FontSize="24"
+                        Width="150"
+                        Height="50">
+                </Button>
+
+                <TextBlock Grid.Column="2"
+                           x:Name="deviation_text"
+                           Text="Отклонение: 0 центов"
+                           FontSize="24"
+                           Foreground="AntiqueWhite"
+                           FontFamily="Bahnschrift"
+                           FontWeight="Light"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"/>
+            </Grid>
+
+            <Border Grid.Row="5" Height="2" Background="#2A3F3F" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="1" Opacity="0.3"/>
+                </Border.Effect>
+            </Border>
+
+            <Grid Grid.Row="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.75*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="Эталонная частота A4 (Гц):"
+                               Foreground="AntiqueWhite"
+                               FontFamily="Bahnschrift"
+                               FontSize="24"
+                               FontWeight="Light"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"/>
+
+                    <Grid Grid.Row="1" VerticalAlignment="Top">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                x:Name="btn_minus"
+                                Click="MinusA4Click"
+                                Content="−"
+                                Style="{StaticResource RoundedButton}"
+                                Width="60"
+                                Height="40"
+                                Background="CadetBlue"
+                                FontSize="24"
+                                FontFamily="Bahnschrift"
+                                Margin="10,0"/>
+
+                        <Border Grid.Column="1" Background="AliceBlue" Height="40" CornerRadius="10" Padding="5">
+                            <TextBlock x:Name="A4_hz_text"
+                                       Text="440"
+                                       FontSize="24"
+                                       FontFamily="Bahnschrift"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="10,5,10,0"/>
+                        </Border>
+
+                        <Button Grid.Column="2"
+                                x:Name="btnPlus"
+                                Click="PlusA4Click"
+                                Content="+"
+                                Style="{StaticResource RoundedButton}"
+                                Width="60"
+                                Height="40"
+                                Background="CadetBlue"
+                                FontSize="24"
+                                FontFamily="Bahnschrift"
+                                Margin="10,0"/>
+                    </Grid>
+                </Grid>
+
+                <Button Grid.Column="1"
+                        x:Name="reset_button"
+                        Click="ResetSettingsClick"
+                        Content="Сбросить"
+                        FontFamily="Bahnschrift"
+                        FontSize="24"
+                        Style="{StaticResource RoundedButton}"
+                        Height="50"
+                        Width="150"
+                        Background="#c0392b"/>
+
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.75*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="Микрофон:"
+                               Foreground="AntiqueWhite"
+                               FontFamily="Bahnschrift"
+                               FontSize="24"
+                               FontWeight="Light"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"/>
+
+                    <ComboBox Grid.Row="1"
+                              x:Name="mic_combo_box"
+                              SelectedIndex="0"
+                              Background="AliceBlue"
+                              FontFamily="Bahnschrift"
+                              FontSize="18"
+                              VerticalAlignment="Top"
+                              Height="30"
+                              Margin="10,5">
+                        <ComboBoxItem Content="По умолчанию"/>
+                    </ComboBox>
+                </Grid>
+            </Grid>
+        </Grid>
+        
+    </Border>
+    
+</Window>

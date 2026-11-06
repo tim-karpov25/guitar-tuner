@@ -19,15 +19,35 @@ namespace GuitarTuner
         private bool _isListening = false;
 
         private readonly List<float[]> _buffers = new();
+
+        #region Constants and Variables
+        private const float int16_max = 32768f;
+
         private const int SampleRate = 44100;
         private int _a4Frequency = 440;
+
+        private const int buffer_ms = 30;
+        private const int buffers_to_analyze = 4;
+
+        private const int min_guitar_freq = 60;
+        private const int max_guitar_freq = 1300;
+        private const double rms_silence_threshold = 0.003;
+
+        private const double spike_threshold_ratio = 0.15;
+        private const double freq_smoothing_factor = 0.25;
+        private double _smoothedFreq = 0;
+
+        private const double visual_smoothing_factor = 0.15;
+        private const double visual_snap_threshold = 0.001;
+
+        private const double max_cents_display = 50.0;
+        private const double ball_max_shift = 350.0;
 
         private double _currentVisualPos = 0;
         private double _targetVisualPos = 0;
 
-        private double _smoothedFreq = 0;
-
         private string _lastNote = "";
+        #endregion
 
         public MainWindow()
         {
@@ -40,23 +60,25 @@ namespace GuitarTuner
 
         private void OnRendering(object? sender, EventArgs e)
         {
-            if (!_isListening) return;
+            if (!_isListening) { return; }
 
-            double smoothingFactor = 0.15;
+            double smoothingFactor = visual_smoothing_factor;
 
             _currentVisualPos += (_targetVisualPos - _currentVisualPos) * smoothingFactor;
 
-            if (Math.Abs(_targetVisualPos - _currentVisualPos) < 0.001)
+            if (Math.Abs(_targetVisualPos - _currentVisualPos) < visual_snap_threshold)
+            {
                 _currentVisualPos = _targetVisualPos;
+            }
 
-            double maxShift = 350.0;
+            double maxShift = ball_max_shift;
             ball.RenderTransform = new TranslateTransform(_currentVisualPos * maxShift, 0);
         }
 
         private void StartStopClick(object sender, RoutedEventArgs e)
         {
-            if (_isListening) StopListening();
-            else StartListening();
+            if (_isListening) { StopListening(); }
+            else { StartListening(); }
         }
 
         private void StartListening()
@@ -76,7 +98,7 @@ namespace GuitarTuner
             {
                 DeviceNumber = mic_combo_box.SelectedIndex,
                 WaveFormat = new WaveFormat(SampleRate, 16, 1),
-                BufferMilliseconds = 30
+                BufferMilliseconds = buffer_ms
             };
 
             _waveIn.DataAvailable += OnDataAvailable;
@@ -113,14 +135,14 @@ namespace GuitarTuner
             for (int i = 0; i < sampleCount; i++)
             {
                 short sample = BitConverter.ToInt16(e.Buffer, i * 2);
-                samples[i] = sample / 32768f;
+                samples[i] = sample / int16_max;
             }
 
             lock (_buffers)
             {
                 _buffers.Add(samples);
 
-                if (_buffers.Count >= 4)
+                if (_buffers.Count >= buffers_to_analyze)
                 {
                     int totalLength = _buffers.Sum(b => b.Length);
                     float[] combined = new float[totalLength];
@@ -140,10 +162,10 @@ namespace GuitarTuner
         private void ProcessAudio(float[] buffer)
         {
             double rms = Math.Sqrt(buffer.Average(x => x * x));
-            if (rms < 0.003) return;
+            if (rms < rms_silence_threshold) { return; }
 
             double freq = PitchDetector.DetectPitch(buffer, SampleRate);
-            if (freq < 60 || freq > 1300) return;
+            if (freq < min_guitar_freq || freq > max_guitar_freq) { return; }
 
             var (newNote, _) = NoteAnalyzer.Analyze(freq, _a4Frequency);
 
@@ -154,24 +176,38 @@ namespace GuitarTuner
             }
             else
             {
-                if (_smoothedFreq > 0 && Math.Abs(freq - _smoothedFreq) / _smoothedFreq > 0.15) return;
+                if (_smoothedFreq > 0 && Math.Abs(freq - _smoothedFreq) / _smoothedFreq > spike_threshold_ratio) { return; }
 
-                if (_smoothedFreq == 0) _smoothedFreq = freq;
-                else _smoothedFreq += (freq - _smoothedFreq) * 0.25;
+                if (_smoothedFreq == 0)
+                {
+                    _smoothedFreq = freq;
+                }
+                else
+                {
+                    _smoothedFreq += (freq - _smoothedFreq) * freq_smoothing_factor;
+                }
             }
 
             var (note, targetFreq) = NoteAnalyzer.Analyze(_smoothedFreq, _a4Frequency);
+
             note_text.Text = note;
             note_hz_text.Text = $"({targetFreq:F1} Гц)";
             current_hz_text.Text = $"Текущая частота: {_smoothedFreq:F1} Гц";
 
             double semitonesDiff = 12 * Math.Log2(_smoothedFreq / targetFreq);
             double cents = semitonesDiff * 100;
-            double displayCents = Math.Clamp(cents, -50, 50);
-            _targetVisualPos = displayCents / 50.0;
+            double displayCents = Math.Clamp(cents, -max_cents_display, max_cents_display);
 
-            if (Math.Abs(displayCents) < 1) deviation_text.Text = "Отклонение: 0 центов";
-            else deviation_text.Text = $"Отклонение: {displayCents:+0;-0;0} центов";
+            _targetVisualPos = displayCents / max_cents_display;
+
+            if (Math.Abs(displayCents) < 1)
+            {
+                deviation_text.Text = "Отклонение: 0 центов";
+            }
+            else
+            {
+                deviation_text.Text = $"Отклонение: {displayCents:+0;-0;0} центов";
+            }
         }
 
         private void LoadMicrophones()
@@ -184,18 +220,21 @@ namespace GuitarTuner
                 mic_combo_box.Items.Add(caps.ProductName);
             }
 
-            if (mic_combo_box.Items.Count > 0) mic_combo_box.SelectedIndex = 0;
+            if (mic_combo_box.Items.Count > 0)
+            {
+                mic_combo_box.SelectedIndex = 0;
+            }
         }
 
         private void PlusA4Click(object sender, RoutedEventArgs e)
         {
-            if (_a4Frequency < 460) _a4Frequency++;
+            if (_a4Frequency < 460) { _a4Frequency++; }
             A4_hz_text.Text = _a4Frequency.ToString();
         }
 
         private void MinusA4Click(object sender, RoutedEventArgs e)
         {
-            if (_a4Frequency > 420) _a4Frequency--;
+            if (_a4Frequency > 420) { _a4Frequency--; }
             A4_hz_text.Text = _a4Frequency.ToString();
         }
 

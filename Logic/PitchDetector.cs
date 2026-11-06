@@ -8,10 +8,16 @@ namespace GuitarTuner.Logic
 {
     public static class PitchDetector
     {
+        #region Constants
+        private const int min_guitar_freq = 60;
+        private const int max_guitar_freq = 1300;
+        private const double min_denominator = 1e-6;
+        #endregion
+
         public static double DetectPitch(float[] buffer, int sample_rate)
         {
-            int minLag = sample_rate / 1300;
-            int maxLag = sample_rate / 60;
+            int minLag = sample_rate / max_guitar_freq;
+            int maxLag = sample_rate / min_guitar_freq;
 
             double best_correlation = 0;
             int best_lag = -1;
@@ -31,15 +37,24 @@ namespace GuitarTuner.Logic
                 }
             }
 
-            if (best_lag <= 0 || best_lag == minLag || best_lag == maxLag) return 0;
+            if (best_lag <= 0 || best_lag == minLag || best_lag == maxLag)
+            {
+                return 0;
+            }
 
             double corrLeft = 0;
             double corrRight = 0;
-            for (int i = 0; i < buffer.Length - best_lag + 1; i++) corrLeft += buffer[i] * buffer[i + best_lag - 1];
-            for (int i = 0; i < buffer.Length - best_lag - 1; i++) corrRight += buffer[i] * buffer[i + best_lag + 1];
+            for (int i = 0; i < buffer.Length - best_lag + 1; i++)
+            {
+                corrLeft += buffer[i] * buffer[i + best_lag - 1];
+            }
+            for (int i = 0; i < buffer.Length - best_lag - 1; i++)
+            {
+                corrRight += buffer[i] * buffer[i + best_lag + 1];
+            }
 
             double denominator = (corrLeft - 2 * best_correlation + corrRight);
-            if (Math.Abs(denominator) < 1e-6) { return (double)sample_rate / best_lag; }
+            if (Math.Abs(denominator) < min_denominator) { return (double)sample_rate / best_lag; }
 
             double delta = 0.5 * (corrLeft - corrRight) / denominator;
 
